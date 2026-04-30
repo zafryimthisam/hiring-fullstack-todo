@@ -1,6 +1,7 @@
 import "./App.css";
 import TaskIcon from "@mui/icons-material/Task";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 import {
   Card,
   CardContent,
@@ -14,8 +15,23 @@ import { Textarea } from "./components/ui/textarea";
 import { Button } from "./components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useEffect, useState } from "react";
 
 function App() {
+  const [todos, setTodos] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/");
+        setTodos(response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const todoSchema = z.object({
     title: z
       .string()
@@ -30,18 +46,24 @@ function App() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    getValues,
   } = useForm<todoType>({
     defaultValues: {
       title: "",
       description: "",
     },
     resolver: zodResolver(todoSchema),
+    mode: "onChange",
   });
 
-  const onSubmit = async () => {
-    console.log("Form Submitted");
-    reset();
+  const onSubmit = async (data: todoType) => {
+    try {
+      await axios.post("http://localhost:3000/api/todos", data);
+      console.log("Form Submitted");
+      console.log(data);
+      reset();
+    } catch (error) {
+      console.log("Failed to create todo:", error);
+    }
   };
 
   return (
@@ -91,10 +113,11 @@ function App() {
                   <p className="text-red-500">{`${errors.description?.message}`}</p>
                 )}
                 <Button
+                  disabled={isSubmitting}
                   className="mt-2 w-fit py-4 self-end cursor-pointer"
                   type="submit"
                 >
-                  Add
+                  {isSubmitting ? "Adding..." : "Add"}
                 </Button>
               </form>
             </CardContent>
@@ -110,6 +133,7 @@ function App() {
             Currently you do not have any tasks to complete
           </p>
         </div>
+        <p>{todos}</p>
       </div>
     </div>
   );
