@@ -36,7 +36,6 @@ const todoSchema = z.object({
 type TodoFormValues = z.infer<typeof todoSchema>;
 const API_BASE = "http://localhost:3000";
 
-<<<<<<< HEAD
 function getColSpan(title: string, description: string): number {
   const total = title.length + description.length;
   if (total <= 60) return 4;
@@ -45,22 +44,6 @@ function getColSpan(title: string, description: string): number {
   return 12;
 }
 
-=======
-// ── Content-aware column span ──────────────────────────────────────────────
-// Returns a col-span based on combined character length of title + description.
-// We also carry forward a "remaining columns" budget per row so cards pack
-// tightly without awkward orphan gaps.
-function getColSpan(title: string, description: string): number {
-  const total = title.length + description.length;
-  if (total <= 60) return 4; // short  → compact square
-  if (total <= 120) return 6; // medium → half width
-  if (total <= 200) return 8; // long   → wide
-  return 12; // very long → full row
-}
-
-// Build a layout plan: pack cards into 12-col rows, never leaving a gap > 3.
-// Returns array of col-span numbers parallel to the todos array.
->>>>>>> 12a6ff982ede3151b494d5ae04c659918e2db56c
 function buildLayout(todos: Todo[]): number[] {
   const spans: number[] = [];
   let rowUsed = 0;
@@ -68,24 +51,12 @@ function buildLayout(todos: Todo[]): number[] {
   todos.forEach((todo) => {
     let span = getColSpan(todo.title, todo.description);
 
-<<<<<<< HEAD
     const remaining = 12 - rowUsed;
     if (span > remaining) {
       if (remaining >= 4) {
         span = remaining;
       } else {
         spans.push(-remaining);
-=======
-    // If it doesn't fit in the remaining space, either stretch to fill or bump to next row
-    const remaining = 12 - rowUsed;
-    if (span > remaining) {
-      if (remaining >= 4) {
-        // Stretch current card to fill the row rather than leave a gap
-        span = remaining;
-      } else {
-        // Tiny leftover — pad with a ghost span (handled below) and start fresh
-        spans.push(-remaining); // negative = filler slot
->>>>>>> 12a6ff982ede3151b494d5ae04c659918e2db56c
         rowUsed = 0;
         span = getColSpan(todo.title, todo.description);
       }
@@ -123,10 +94,6 @@ function App() {
   const pendingCount = todos.filter((t) => !t.done).length;
   const doneCount = todos.filter((t) => t.done).length;
 
-<<<<<<< HEAD
-=======
-  // Recompute layout whenever sorted todos change
->>>>>>> 12a6ff982ede3151b494d5ae04c659918e2db56c
   const layoutSpans = useMemo(() => buildLayout(sortedTodos), [sortedTodos]);
 
   const fetchTodos = async () => {
@@ -238,20 +205,12 @@ function App() {
     }
   };
 
-<<<<<<< HEAD
-=======
-  // Interleave filler divs and todo cards based on layoutSpans
->>>>>>> 12a6ff982ede3151b494d5ae04c659918e2db56c
   const renderCards = () => {
     const elements: React.ReactNode[] = [];
     let todoIdx = 0;
 
     layoutSpans.forEach((span, i) => {
       if (span < 0) {
-<<<<<<< HEAD
-=======
-        // Filler slot to close out a row
->>>>>>> 12a6ff982ede3151b494d5ae04c659918e2db56c
         elements.push(
           <div
             key={`filler-${i}`}
@@ -267,11 +226,6 @@ function App() {
       const bgColor = todoBgColors[todoIdx % todoBgColors.length];
       const isEditing = editingId === todo._id;
       const contentLen = todo.title.length + todo.description.length;
-<<<<<<< HEAD
-
-=======
-      // Taller min-height for longer content
->>>>>>> 12a6ff982ede3151b494d5ae04c659918e2db56c
       const minH =
         contentLen > 200
           ? "min-h-[200px]"
