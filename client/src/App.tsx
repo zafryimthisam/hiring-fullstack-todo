@@ -1,15 +1,49 @@
 import "./App.css";
 import TaskIcon from "@mui/icons-material/Task";
 import { useForm } from "react-hook-form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./components/ui/card";
+import { Label } from "./components/ui/label";
+import { Input } from "./components/ui/input";
+import { Textarea } from "./components/ui/textarea";
+import { Button } from "./components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 function App() {
+  const todoSchema = z.object({
+    title: z
+      .string()
+      .min(3, "Title must be minimum 3 characters")
+      .max(50, "Title exceeded the max length"),
+    description: z.string().min(3, "Description must be minimum 3 characters"),
+  });
+  type todoType = z.infer<typeof todoSchema>;
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
     getValues,
-  } = useForm();
+  } = useForm<todoType>({
+    defaultValues: {
+      title: "",
+      description: "",
+    },
+    resolver: zodResolver(todoSchema),
+  });
+
+  const onSubmit = async () => {
+    console.log("Form Submitted");
+    reset();
+  };
+
   return (
     <div className="flex justify-between">
       <div>
@@ -20,15 +54,58 @@ function App() {
         <p className="text-(--color-p-text) text-2xl">
           Organize your tasks, focus on what matters.
         </p>
-        <div>
-          <form></form>
+        <div className="mt-5">
+          <Card className="w-full max-w-sm bg-[#FEF5ED]">
+            <CardHeader>
+              <CardTitle>Add a task</CardTitle>
+              <CardDescription>
+                Fill out the below form with a title and a description
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="flex flex-col gap-1"
+              >
+                <Label className="my-2" htmlFor="title">
+                  Title
+                </Label>
+                <Input
+                  aria-invalid={errors.title ? "true" : "false"}
+                  {...register("title")}
+                  id="title"
+                  type="text"
+                  placeholder="Enter a title"
+                />
+                {errors.title && (
+                  <p className="text-red-500">{`${errors.title.message}`}</p>
+                )}
+                <Label className="my-2">Description</Label>
+                <Textarea
+                  aria-invalid={errors.description ? "true" : "false"}
+                  {...register("description")}
+                  id="description"
+                  placeholder="Type your to-do description here"
+                />
+                {errors.description && (
+                  <p className="text-red-500">{`${errors.description?.message}`}</p>
+                )}
+                <Button
+                  className="mt-2 w-fit py-4 self-end cursor-pointer"
+                  type="submit"
+                >
+                  Add
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
       <div>
         <h1 className="text-5xl font-bold text-(--color-main-text)">
           Things to get done
         </h1>
-        <div className="min-h-96 w-[396.385] mt-14 rounded bg-[#E8F3FA] flex items-center">
+        <div className="min-h-96 w-[396.385] mt-14 rounded-2xl border bg-[#E8F3FA] flex items-center">
           <p className="text-lg font-semibold text-(--color-info-text) text-center px-8 w-96">
             Currently you do not have any tasks to complete
           </p>
