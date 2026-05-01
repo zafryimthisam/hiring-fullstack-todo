@@ -15,6 +15,7 @@ import { Button } from "./components/ui/button";
 import { Checkbox } from "./components/ui/checkbox";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { toast } from "sonner";
 
 type Todo = {
   _id: string;
@@ -102,6 +103,7 @@ function App() {
       setTodos(response.data);
     } catch (error) {
       console.error("Error fetching todos:", error);
+      toast.error("Failed to fetch todos");
     }
   };
 
@@ -128,9 +130,11 @@ function App() {
       await axios.post(`${API_BASE}/api/todos`, data);
       reset();
       setShowForm(false);
+      toast.success("TODO created successfully!");
       await fetchTodos();
     } catch (error) {
       console.log("Failed to create todo:", error);
+      toast.error("Failed to create TODO");
     }
   };
 
@@ -167,9 +171,11 @@ function App() {
         description: editDescription.trim(),
       });
       setEditingId(null);
+      toast.success("Saved changes");
       await fetchTodos();
     } catch (error) {
       console.error("Failed to update todo:", error);
+      toast.error("Failed to update todo");
     } finally {
       setIsSaving(false);
     }
@@ -179,9 +185,11 @@ function App() {
     try {
       setLoadingId(id);
       await axios.delete(`${API_BASE}/api/todos/${id}`);
+      toast.success("Deleted todo successfully!");
       await fetchTodos();
     } catch (error) {
       console.error("Failed to delete todo:", error);
+      toast.error("Failed to delete todo");
     } finally {
       setLoadingId(null);
     }
